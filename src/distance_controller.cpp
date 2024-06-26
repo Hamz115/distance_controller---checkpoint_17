@@ -78,7 +78,11 @@ private:
     if (std::abs(waypoints_[current_waypoint_index_] - current_distance_) < 0.01) {
       cmd.linear.x = 0.0;
       velocity_publisher_->publish(cmd);
-      RCLCPP_INFO(this->get_logger(), "Reached waypoint %zu at %.2f meters. Acquiring next waypoint.", current_waypoint_index_ + 1, waypoints_[current_waypoint_index_]);
+      RCLCPP_INFO(this->get_logger(), "Reached waypoint %zu at %.2f meters. Stopping for stabilization.", current_waypoint_index_ + 1, waypoints_[current_waypoint_index_]);
+
+      // Pause for a period to ensure the robot comes to a complete stop
+      std::this_thread::sleep_for(std::chrono::seconds(3)); // Pause for 3 seconds
+
       current_waypoint_index_++;
       if (current_waypoint_index_ < waypoints_.size()) {
         pid_ = std::make_shared<PIDController>(Kp_, Ki_, Kd_, waypoints_[current_waypoint_index_]);
